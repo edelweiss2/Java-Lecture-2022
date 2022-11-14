@@ -48,8 +48,8 @@ public class EmployeeMain {
         System.out.println();
         
         hs.stream()
-          .sorted((o1, o2) -> o1.getJoinDate().compareTo(o2.getJoinDate()));
-//          .forEach(s -> System.out.println(s)); 
+          .sorted((o1, o2) -> o1.getJoinDate().compareTo(o2.getJoinDate()))
+          .forEach(s -> System.out.println(s)); 
 
 	}
 
