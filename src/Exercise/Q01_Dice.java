@@ -11,8 +11,6 @@ public class Q01_Dice {
 		return r;
 	}
 
-	public static dice3() {
-		for int
-	}
+	
 
 }
