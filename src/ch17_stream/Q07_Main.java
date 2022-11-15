@@ -13,7 +13,7 @@ public class Q07_Main {
 				);
 		List<Q07_Member> developers = list.stream()
 										  .filter(s->s.getJob().equals("개발자"))
-										  .
+										  .toList();
 										  
 		developers.stream()
 				  .forEach(s -> System.out.println(s.getName()));

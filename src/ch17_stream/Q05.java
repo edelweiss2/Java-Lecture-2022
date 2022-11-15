@@ -12,8 +12,8 @@ public class Q05 {
 					"Java8 supports lambda expressions"
 				);
 		list.stream()
-			.filter(s -> s.toLowerCase().contains("java"))
-			.forEach(s -> System.out.println(s));
+			.filter(s -> s.toLowerCase().indexOf("java") >=0 ) //indexof는 안에 원하는string이 없으면 -1
+			.forEach(s -> System.out.println(s));				//을 반환함. 있으면 그 위치를 숫자로 반환
 	}
 
 }
