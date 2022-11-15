@@ -20,9 +20,10 @@ public class Q01_Student {
 	}
 	
 	public boolean equals(Object obj) {
-		if(obj instanceof Student) {
-			Student
-		}
+		if (!(obj instanceof Q01_Student))
+			return false;
+		Q01_Student st = (Q01_Student) obj;
+		return studentNum.equals(st.getStudentNum());
 		
 	}
 	

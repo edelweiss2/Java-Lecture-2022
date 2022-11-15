@@ -32,7 +32,7 @@ public class Ex15_Grouping {
 														   st->st.getScore()
 														   )
 												   )
-							);
+					);
 		scoreMap.forEach((k,v) -> System.out.println(k + " : " + v ));
 	}
 
