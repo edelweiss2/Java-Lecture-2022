@@ -33,6 +33,10 @@ SELECT * FROM city
 	WHERE District='Seoul'
 	 OR District='Inchon' OR district='Kyonggi';
 
+# 수도권
+SELECT * FROM city
+	WHERE district IN ('seoul', 'incheon', 'kyonggi');
+
 SELECT * FROM city
 	WHERE id % 100 = 0;     
 
@@ -105,6 +109,7 @@ SELECT MAX(population), MIN(population) FROM city
 # 경기도의 도시 이름
 SELECT GROUP_CONCAT(`Name`) FROM city
 	 WHERE district = 'Kyonggi';
+	 
 
 # 국내 광역시도 이름
 SELECT GROUP_CONCAT(District) FROM city
@@ -183,3 +188,27 @@ SELECT r.Name, language FROM countrylanguage AS l
 	WHERE r.Continent = 'asia'
 	AND isofficial = TRUE;
 
+# 전 세계 인구가 가장 많은 10개 도시에서 사용하는 언어는? 
+# 도시명, 인구수, 언어명
+SELECT l.Name, l.Population, r.`Language` FROM city AS l
+	JOIN countrylanguage AS r
+	ON l.CountryCode = r.CountryCode
+	WHERE r.IsOfficial = true
+	ORDER BY l.Population DESC
+	LIMIT 10;
+	
+# 전 세계 인구가 가장 많은 10개 도시에서 사용하는 언어는? 
+# 도시명, 인구수, 언어명
+SELECT l.Name, l.Population, r.`Language` FROM city AS l
+	JOIN countrylanguage AS r
+	ON l.CountryCode = r.CountryCode
+	WHERE r.IsOfficial = true
+	ORDER BY l.Population DESC
+	LIMIT 10;
+
+
+/* 서브쿼리 */
+# 서울보다 인구가 많은 도시
+SELECT * FROM city
+	WHERE Population >
+	(SELECT Population FROM city WHERE `NAME` = 'Seoul');

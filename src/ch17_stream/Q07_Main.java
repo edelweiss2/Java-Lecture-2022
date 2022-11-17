@@ -2,6 +2,7 @@ package ch17_stream;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Q07_Main {
 
@@ -13,7 +14,7 @@ public class Q07_Main {
 				);
 		List<Q07_Member> developers = list.stream()
 										  .filter(s->s.getJob().equals("개발자"))
-										  .toList();
+										  .collect(Collectors.toList());
 										  
 		developers.stream()
 				  .forEach(s -> System.out.println(s.getName()));

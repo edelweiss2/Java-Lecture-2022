@@ -24,7 +24,7 @@ public class Ex14_Collect {
 		
 		maleList = totalList.stream()
 							.filter(st->st.getGender().equals("남"))
-							.toList();
+							.collect(Collectors.toList());
 		maleList.forEach(st -> System.out.println(st.getName()));
 		
 		// 학생 -> Map으로 만들고 map<이름 , 성적>
