@@ -17,6 +17,8 @@ public class Ex01_Select {
 			        "mcuser", "mcpass");
 			stmt = conn.createStatement();
 			String sql ="Select * FROM city WHERE countrycode = 'kor' LIMIT 10;";
+			
+			//Select 실행
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				int id = rs.getInt(1);		//첫번째 컬럼의 int타입값
