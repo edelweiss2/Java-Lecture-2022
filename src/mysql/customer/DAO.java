@@ -17,21 +17,42 @@ import java.util.Properties;
  * DAO (Data Access Object)
  */
 public class DAO {
-	public Connection myGetConnection() {
-		Connection conn = null;
+	private String host;
+	private String user;
+	private String password;
+	private String database;
+	private String port;
+	
+	DAO() {
 		try {
 			InputStream is = new FileInputStream("/workspace/mysql.properties");
 			Properties props = new Properties();
 			props.load(is);
 			is.close();
 			
-			String host = props.getProperty("host");
-			String user = props.getProperty("user");
-			String password = props.getProperty("password");
-			String database = props.getProperty("database");
-			String port = props.getProperty("port", "3306");
+			host = props.getProperty("host");
+			user = props.getProperty("user");
+			password = props.getProperty("password");
+			database = props.getProperty("database");
+			port = props.getProperty("port", "3306");
+	} catch (Exception e) {
+		e.printStackTrace();
+	  }
+	}
+	public Connection myGetConnection() {
+		Connection conn = null;
+		try {
+//			InputStream is = new FileInputStream("/workspace/mysql.properties");
+//			Properties props = new Properties();
+//			props.load(is);
+//			is.close();
+//			
+//			String host = props.getProperty("host");
+//			String user = props.getProperty("user");
+//			String password = props.getProperty("password");
+//			String database = props.getProperty("database");
+//			String port = props.getProperty("port", "3306");
 			String connStr = "jdbc:mysql://" + host + ":" + port + "/" + database;
-//			System.out.println(connStr);
 			conn = DriverManager.getConnection(connStr, user, password);
 			
 		} catch (Exception e) {
@@ -40,6 +61,23 @@ public class DAO {
 		return conn;
 	}
 	
+	public void deleteCustomer(String uid) {
+		Connection conn = myGetConnection();
+		String sql = "UPDATE customer SET isDeleted = 1 WHERE uid = ?;";
+		
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setString(1, uid);
+			
+			//delete 대상 대신에 isDeleted 필드를 1로 변경하는 것으로 대신함
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
 	
 	public void updateCustomer(Customer c) {
 		Connection conn = myGetConnection();
