@@ -40,6 +40,26 @@ public class DAO {
 		return conn;
 	}
 	
+	
+	public void updateCustomer(Customer c) {
+		Connection conn = myGetConnection();
+		String sql = "UPDATE customer SET name = ?, regDate = ?, isDeleted = ? WHERE uid = ?;";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setString(1, c.getName());
+			pStmt.setString(2, c.getRegDate().toString());
+			pStmt.setInt(3, c.getIsDeleted());
+			pStmt.setString(4, c.getUid());			//앞에 ?(변수값) 를 순서대로 1번부터
+			
+			//Update 실행
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public Customer getCustomer(String uid) {
 		Connection conn = myGetConnection();
 		String sql = "SELECT * FROM customer WHERE uid=?;";
@@ -92,13 +112,13 @@ public class DAO {
 		return list;
 	}
 	
-	public void insertCustomer(Customer customer) {
+	public void insertCustomer(Customer c) {
 		Connection conn = myGetConnection();
 		String sql = "INSERT INTO customer (uid, name) VALUES(?, ?);";
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, customer.getUid());
-			pStmt.setString(2, customer.getName());
+			pStmt.setString(1, c.getUid());
+			pStmt.setString(2, c.getName());
 			
 			pStmt.executeUpdate();
 			pStmt.close();
