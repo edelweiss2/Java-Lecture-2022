@@ -3,7 +3,7 @@ package mysql.customer;
 import java.time.LocalDate;
 import java.util.List;
 
-public class Main {
+public class Test {
 
 	public static void main(String[] args) {
 		DAO dao = new DAO();
