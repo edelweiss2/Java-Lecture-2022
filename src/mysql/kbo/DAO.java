@@ -1,4 +1,4 @@
-package mysql.customer;
+package mysql.kbo;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -6,16 +6,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/*
- * DAO (Data Access Object)
- */
+import mysql.customer.Customer;
+
 public class DAO {
 	private String host;
 	private String user;
@@ -23,7 +21,7 @@ public class DAO {
 	private String database;
 	private String port;
 	
-	DAO() {
+	DAO () {
 		try {
 			InputStream is = new FileInputStream("/workspace/mysql.properties");
 			Properties props = new Properties();
@@ -37,37 +35,46 @@ public class DAO {
 			port = props.getProperty("port", "3306");
 		} catch (Exception e) {
 				e.printStackTrace();
-			}
+	   	}
 	}
+	
 	public Connection myGetConnection() {
 		Connection conn = null;
 		try {
-//			InputStream is = new FileInputStream("/workspace/mysql.properties");
-//			Properties props = new Properties();
-//			props.load(is);
-//			is.close();
-//			
-//			String host = props.getProperty("host");
-//			String user = props.getProperty("user");
-//			String password = props.getProperty("password");
-//			String database = props.getProperty("database");
-//			String port = props.getProperty("port", "3306");
 			String connStr = "jdbc:mysql://" + host + ":" + port + "/" + database;
 			conn = DriverManager.getConnection(connStr, user, password);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return conn;
 	}
 	
-	public void deleteCustomer(String uid) {
+	public void insertPlayer(Player p) {
 		Connection conn = myGetConnection();
-		String sql = "UPDATE customer SET isDeleted = 1 WHERE uid = ?;";
+		String sql = "INSERT INTO player VALUES (?, ?, ?, ?, ?,default);";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, p.getBackNumber());
+			pStmt.setString(2, p.getName());
+			pStmt.setString(3, p.getPosition());
+			pStmt.setString(4, p.getBday().toString());
+			pStmt.setInt(5, p.getHeight());
+						
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+
+	public void deletePlayer(int backNumber) {
+		Connection conn = myGetConnection();
+		String sql = "UPDATE player SET isDeleted = 1 WHERE backNumber = ?;";
 		
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, uid);
+			pStmt.setInt(1, backNumber);
 			
 			//delete 대상 대신에 isDeleted 필드를 1로 변경하는 것으로 대신함
 			pStmt.executeUpdate();
@@ -79,15 +86,17 @@ public class DAO {
 		
 	}
 	
-	public void updateCustomer(Customer c) {
-		Connection conn = myGetConnection();
-		String sql = "UPDATE customer SET name = ?, regDate = ?, isDeleted = ? WHERE uid = ?;";
+	public void updatePlayer(Player p) {
+		Connection conn = myGetConnection();		
+		String sql = "UPDATE player SET name = ?, position = ?, bday = ?, height = ?, isDeleted = ? WHERE backNumber = ?;";
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, c.getName());
-			pStmt.setString(2, c.getRegDate().toString());
-			pStmt.setInt(3, c.getIsDeleted());
-			pStmt.setString(4, c.getUid());			//앞에 ?(변수값) 를 순서대로 1번부터
+			pStmt.setString(1, p.getName());
+			pStmt.setString(2, p.getPosition());
+			pStmt.setString(3, p.getBday().toString());
+			pStmt.setInt(4, p.getHeight());			
+			pStmt.setInt(5, p.getIsDeleted());			
+			pStmt.setInt(6, p.getBackNumber());			
 			
 			//Update 실행
 			pStmt.executeUpdate();
@@ -98,21 +107,23 @@ public class DAO {
 		}
 	}
 	
-	public Customer getCustomer(String uid) {
+	public Player getPlayer (int backNumber) {
 		Connection conn = myGetConnection();
-		String sql = "SELECT * FROM customer WHERE uid=?;";
-		Customer c = new Customer();
+		String sql = "SELECT * FROM Player WHERE backNumber=?;";
+		Player p = new Player();
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, uid);
+			pStmt.setInt(1, backNumber);
 			
 			//select 실행
 			ResultSet rs = pStmt.executeQuery();
 			while (rs.next()) {
-				c.setUid(rs.getString(1));
-				c.setName(rs.getNString(2));
-				c.setRegDate(LocalDate.parse(rs.getString(3)));
-				c.setIsDeleted(rs.getInt(4));
+				p.setBackNumber(rs.getInt(1));
+				p.setName(rs.getNString(2));
+				p.setPosition(rs.getString(3));
+				p.setBday(LocalDate.parse(rs.getString(4)));
+				p.setHeight(rs.getInt(5));
+				p.setIsDeleted(rs.getInt(6));
 			}
 			rs.close();
 			pStmt.close();
@@ -120,26 +131,28 @@ public class DAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return c;
+		return p;
 	}
 	
-	public List<Customer> getCustomers() {
+	public List<Player> getPlayers() {
 		Connection conn = myGetConnection();
-		Statement stmt = null;
-		List<Customer> list = new ArrayList<>();
-		String sql = "SELECT * FROM customer WHERE isdeleted=0;";
+		
+		List<Player> list = new ArrayList<>();
+		String sql = "SELECT * FROM Player WHERE isdeleted=0;";
 		try {
-			stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();			
 			
 			//select 실행
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
-				Customer c = new Customer();
-				c.setUid(rs.getString(1));
-				c.setName(rs.getNString(2));
-				c.setRegDate(LocalDate.parse(rs.getString(3)));
-				c.setIsDeleted(rs.getInt(4));
-				list.add(c);
+				Player p = new Player();
+				p.setBackNumber(rs.getInt(1));
+				p.setName(rs.getNString(2));
+				p.setPosition(rs.getString(3));
+				p.setBday(LocalDate.parse(rs.getString(4)));
+				p.setHeight(rs.getInt(5));
+				p.setIsDeleted(rs.getInt(6));
+				list.add(p);
 			}
 			rs.close();
 			stmt.close();
@@ -149,20 +162,7 @@ public class DAO {
 		} 
 		return list;
 	}
+
 	
-	public void insertCustomer(Customer c) {
-		Connection conn = myGetConnection();
-		String sql = "INSERT INTO customer (uid, name) VALUES(?, ?);";
-		try {
-			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, c.getUid());
-			pStmt.setString(2, c.getName());
-			
-			pStmt.executeUpdate();
-			pStmt.close();
-			conn.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-	}
+	
 }
