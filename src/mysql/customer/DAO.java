@@ -5,7 +5,12 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /*
@@ -35,6 +40,58 @@ public class DAO {
 		return conn;
 	}
 	
+	public Customer getCustomer(String uid) {
+		Connection conn = myGetConnection();
+		String sql = "SELECT * FROM customer WHERE uid=?;";
+		Customer c = new Customer();
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setString(1, uid);
+			
+			//select 실행
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				c.setUid(rs.getString(1));
+				c.setName(rs.getNString(2));
+				c.setRegDate(LocalDate.parse(rs.getString(3)));
+				c.setIsDeleted(rs.getInt(4));
+			}
+			rs.close();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return c;
+	}
+	
+	public List<Customer> getCustomers() {
+		Connection conn = myGetConnection();
+		Statement stmt = null;
+		List<Customer> list = new ArrayList<>();
+		String sql = "SELECT * FROM customer WHERE isdeleted=0;";
+		try {
+			stmt = conn.createStatement();
+			
+			//select 실행
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				Customer c = new Customer();
+				c.setUid(rs.getString(1));
+				c.setName(rs.getNString(2));
+				c.setRegDate(LocalDate.parse(rs.getString(3)));
+				c.setIsDeleted(rs.getInt(4));
+				list.add(c);
+			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return list;
+	}
+	
 	public void insertCustomer(Customer customer) {
 		Connection conn = myGetConnection();
 		String sql = "INSERT INTO customer (uid, name) VALUES(?, ?);";
@@ -45,14 +102,9 @@ public class DAO {
 			
 			pStmt.executeUpdate();
 			pStmt.close();
+			conn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		} 
 	}
 }
