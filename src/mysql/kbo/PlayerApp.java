@@ -49,8 +49,9 @@ public class PlayerApp {
 			System.out.print("백넘버> ");
 			backNumber = Integer.parseInt(scan.nextLine());
 			Player p = dao.getPlayer(backNumber);
-			if (p.getName() == null)
+			if (p.getName() == null) {
 				break;
+			}
 			System.out.println("중복된 백넘버입니다. 다시 입력하세요.");
 		}
 		System.out.print("이름> ");
