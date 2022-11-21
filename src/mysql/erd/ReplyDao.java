@@ -48,6 +48,75 @@ public class ReplyDao {
 		return conn;
 	}
 	
+	public void deleteReply(int bid) {
+		Connection conn = myGetConnection();
+		String sql = "DELETE FROM reply WHERE bid = ?;";
+		
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	public void updateReply(Reply r) {
+		Connection conn = myGetConnection();		
+		String sql = "UPDATE reply SET rid = ? , rcontent = ?, regTime = NOW(), isMine = ?, bid =? WHERE uid = ?;";
+		
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, r.getRid());
+			pStmt.setString(2, r.getRcontent());
+			pStmt.setInt(3, r.getIsMine());
+			pStmt.setInt(4, r.getBid());
+			pStmt.setString(5, r.getUid());
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Reply getReply(int bid) {
+		Connection conn = myGetConnection();
+		String sql = "SELECT * FROM reply WHERE bid=?;";
+		Reply r = new Reply();
+		
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				r.setRid(rs.getInt(1));
+				r.setRcontent(rs.getString(2));
+				r.setRegTime(LocalDateTime.parse(rs.getString(3).replace(" ", "T")));
+				r.setIsMine(rs.getInt(4));
+				r.setUid(rs.getString(5));
+				r.setBid(rs.getInt(6));
+			}
+			
+			rs.close();
+			pStmt.close();
+			conn.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return r;
+	}
+	
 	public List<Reply> listReply() {
 		Connection conn = myGetConnection();
 		List<Reply> list = new ArrayList<>();
@@ -60,11 +129,16 @@ public class ReplyDao {
 				Reply r = new Reply();
 				r.setRid(rs.getInt(1));
 				r.setRcontent(rs.getString(2));
-				r.setRegTime(LocalDateTime.parse(rs.getString(3)));
-				
-				
+				r.setRegTime(LocalDateTime.parse(rs.getString(3).replace(" ", "T")));
+				r.setIsMine(rs.getInt(4));
+				r.setUid(rs.getString(5));
+				r.setBid(rs.getInt(6));
+				list.add(r);
 			}
 			
+			rs.close();
+			stmt.close();
+			conn.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();

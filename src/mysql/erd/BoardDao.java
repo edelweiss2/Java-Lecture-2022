@@ -93,7 +93,7 @@ public class BoardDao {
 	
 	public Board getBoard (int bid) {
 		Connection conn = myGetConnection();
-		String sql = "SELECT * FROM board WHERE uid=?;";
+		String sql = "SELECT * FROM board WHERE bid=?;";
 		Board b = new Board();
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
