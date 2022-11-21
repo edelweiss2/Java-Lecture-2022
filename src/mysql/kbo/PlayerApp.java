@@ -8,7 +8,7 @@ public class PlayerApp {
 
 	private static Scanner scan = new Scanner(System.in);
 	private static DAO dao = new DAO();
-
+	
 	public static void main(String[] args) {
 		boolean run = true;
 		while (run) {
