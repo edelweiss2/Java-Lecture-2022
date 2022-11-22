@@ -1,4 +1,4 @@
-package mysql.erd;
+package mysql.bbs;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -8,26 +8,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.mindrot.jbcrypt.BCrypt;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare.Prepare;
-
-import mysql.kbo.Player;
-
-
-public class UsersDao {
+public class ReplyDao {
 	private String host;
 	private String user;
 	private String password;
 	private String database;
 	private String port;
 	
-	UsersDao() {
+	ReplyDao() {
 		try {
 			InputStream is = new FileInputStream("/workspace/mysql.properties");
 			Properties props = new Properties();
@@ -43,6 +37,7 @@ public class UsersDao {
 				e.printStackTrace();
 	   	}
 	}
+	
 	public Connection myGetConnection() {
 		Connection conn = null;
 		try {
@@ -54,113 +49,123 @@ public class UsersDao {
 		return conn;
 	}
 	
-	
-	public void deleteUser(String uid) {
+	public void deleteReply(int bid) {
 		Connection conn = myGetConnection();
-		String sql = "DELETE FROM users WHERE uid = ?;";
+		String sql = "DELETE FROM reply WHERE bid = ?;";
 		
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, uid);
+			pStmt.setInt(1, bid);
 			
 			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	public void updateReply(Reply r) {
+		Connection conn = myGetConnection();		
+		String sql = "UPDATE reply SET rid = ? , rcontent = ?, regTime = NOW(), isMine = ?, bid =? WHERE uid = ?;";
+		
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, r.getRid());
+			pStmt.setString(2, r.getRcontent());
+			pStmt.setInt(3, r.getIsMine());
+			pStmt.setInt(4, r.getBid());
+			pStmt.setString(5, r.getUid());
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Reply getReply(int bid) {
+		Connection conn = myGetConnection();
+		String sql = "SELECT * FROM reply WHERE bid=?;";
+		Reply r = new Reply();
+		
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			ResultSet rs = pStmt.executeQuery();
+			while (rs.next()) {
+				r.setRid(rs.getInt(1));
+				r.setRcontent(rs.getString(2));
+				r.setRegTime(LocalDateTime.parse(rs.getString(3).replace(" ", "T")));
+				r.setIsMine(rs.getInt(4));
+				r.setUid(rs.getString(5));
+				r.setBid(rs.getInt(6));
+			}
+			
+			rs.close();
 			pStmt.close();
 			conn.close();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void updateUser(Users u) {
-		Connection conn = myGetConnection();		
-		String sql = "UPDATE users SET pwd = ? , uname = ?, email = ?, regDate = ? WHERE uid = ?;";
 		
-		try {
-			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, u.getPwd());
-			pStmt.setString(2, u.getUname());
-			pStmt.setString(3, u.getEmail());
-			pStmt.setString(4, u.getRegDate().toString());
-			pStmt.setString(5, u.getUid());
-			
-			pStmt.executeUpdate();
-			pStmt.close();
-			conn.close();			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		return r;
 	}
 	
-	public Users getUserInfo(String uid) {
+	public List<Reply> listReply() {
 		Connection conn = myGetConnection();
-		String sql = "SELECT * FROM users WHERE uid=?;";
-		Users u = new Users();
-		
-		try {
-			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, uid);
-			
-			ResultSet rs = pStmt.executeQuery();
-			while (rs.next()) {
-				u.setUid(rs.getString(1));
-				u.setPwd(rs.getString(2));
-				u.setUname(rs.getString(3));
-				u.setEmail(rs.getString(4));
-				u.setRegDate(LocalDate.parse(rs.getString(5)));
-			}
-			rs.close();
-			pStmt.close();
-			conn.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return u;
-	}
-	
-	public List<Users> listUsers() {		
-		Connection conn = myGetConnection();
-		List<Users> list = new ArrayList<>();
-		String sql = "SELECT * FROM users ORDER BY regDate, uid;";
+		List<Reply> list = new ArrayList<>();
+		String sql = "SELECT * FROM reply ORDER BY regTime, uid;";
 		
 		try {
 			Statement stmt = conn.createStatement();
-			
 			ResultSet rs = stmt.executeQuery(sql);
-			while (rs.next()) {
-				Users u = new Users();
-				u.setUid(rs.getString(1));
-				u.setPwd(rs.getString(2));
-				u.setUname(rs.getString(3));
-				u.setEmail(rs.getString(4));
-				u.setRegDate(LocalDate.parse(rs.getString(5)));
-				list.add(u);				
+			while(rs.next()) {
+				Reply r = new Reply();
+				r.setRid(rs.getInt(1));
+				r.setRcontent(rs.getString(2));
+				r.setRegTime(LocalDateTime.parse(rs.getString(3).replace(" ", "T")));
+				r.setIsMine(rs.getInt(4));
+				r.setUid(rs.getString(5));
+				r.setBid(rs.getInt(6));
+				list.add(r);
 			}
+			
 			rs.close();
 			stmt.close();
 			conn.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return list;
 	}
 	
-	public void registerUser(Users u) {
+	public void insertReply (Reply r) {
 		Connection conn = myGetConnection();
-		String sql = "INSERT INTO users VALUES (?, ?, ?, ?, DEFAULT);";
+		String sql = "INSERT INTO board VALUES (DEFAULT, ?, DEFAULT , DEFAULT , ?, ? );";
+		
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, u.getUid());
-			String cryptedPwd = BCrypt.hashpw(u.getPwd(), BCrypt.gensalt());
-			pStmt.setString(2, cryptedPwd);
-			pStmt.setString(3, u.getUname());
-			pStmt.setString(4, u.getEmail());
+			
+			pStmt.setString(1, r.getRcontent());
+			pStmt.setString(2, r.getUid());
+			pStmt.setInt(3, r.getBid());
 			
 			pStmt.executeUpdate();
 			pStmt.close();
 			conn.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
+	
 }

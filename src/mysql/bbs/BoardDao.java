@@ -1,4 +1,4 @@
-package mysql.erd;
+package mysql.bbs;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.mysql.cj.protocol.Resultset;
+
 
 public class BoardDao {
 	private String host;
@@ -48,6 +49,72 @@ public class BoardDao {
 			e.printStackTrace();
 		}
 		return conn;
+	}
+	
+	//부가기능
+	public void incrementViewCount(int bid) {
+		Connection conn = myGetConnection();
+		String sql = "UPDATE board SET viewcount = viewcount+1 WHERE bid = ?;";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public int getCount() {
+		Connection conn = myGetConnection();
+		String sql = "SELECT COUNT(*) FROM board;";
+		int count = 0;
+		try {
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+				count = rs.getInt(1);
+			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return count;
+	}
+//  부가기능 끝
+	public List<Bbs> getBbsList (int offset) {
+		Connection conn = myGetConnection();
+		String sql = "SELECT b.bid, b.btitle, u.uname, b.modeTime, b.viewCount, b.replyCount FROM board AS b"
+				+ "	JOIN users AS u ON b.uid = u.uid"
+				+ "	LIMIT 10 OFFSET ?;"
+				+ "";
+		List<Bbs> list = new ArrayList<>();
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, offset);
+			ResultSet rs = pStmt.executeQuery();
+			while(rs.next()) {
+				Bbs b = new Bbs();
+				b.setBid(rs.getInt(1));
+				b.setBtitle(rs.getString(2));
+				b.setUname(rs.getString(3));
+				b.setModTime(LocalDateTime.parse(rs.getString(4).replace(" ", "T")));
+				b.setViewCount(rs.getInt(5));
+				b.setReplyCount(rs.getInt(6));
+				list.add(b);
+			}
+			rs.close();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public void deleteBoard (int bid) {
@@ -109,7 +176,6 @@ public class BoardDao {
 				b.setViewCount(rs.getInt(6));
 				b.setReplyCount(rs.getInt(7));
 			}
-			
 			rs.close();
 			pStmt.close();
 			conn.close();
@@ -122,7 +188,7 @@ public class BoardDao {
 	public List<Board> listBoard() {
 		Connection conn = myGetConnection();
 		List<Board> list = new ArrayList<>();
-		String sql = "SELECT * FROM board ORDER BY modeTime, uid;";
+		String sql = "SELECT * FROM board ORDER BY bid DESC;";
 		
 		try {
 			Statement stmt = conn.createStatement();
@@ -139,11 +205,9 @@ public class BoardDao {
 				b.setReplyCount(rs.getInt(7));
 				list.add(b);
 			}
-			
 			rs.close();
 			stmt.close();
 			conn.close();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -163,7 +227,6 @@ public class BoardDao {
 			pStmt.executeUpdate();
 			pStmt.close();
 			conn.close();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

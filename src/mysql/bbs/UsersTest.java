@@ -1,17 +1,18 @@
-package mysql.erd;
+package mysql.bbs;
 
 import java.util.List;
 import java.util.Scanner;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+
 public class UsersTest {
 	static UsersDao dao = new UsersDao();
 	public static void main(String[] args) {
 		UsersDao dao = new UsersDao();
 		
-//		dao.registerUser(new Users("admin", "admin", "관리자", "admin@mysql.com"));
-//		dao.registerUser(new Users("james", "james", "관리자", "james@mysql.com"));
+		dao.registerUser(new Users("maria", "maria", "마리아", "maria@mysql.com"));
+		dao.registerUser(new Users("kevin", "kevin", "케빈", "kevin@mysql.com"));
 		
 //		Users user = dao.getUserInfo("admin123");
 //		System.out.println(user);

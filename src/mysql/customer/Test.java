@@ -23,8 +23,8 @@ public class Test {
 //		c3.setRegDate(LocalDate.parse("2022-11-01"));
 //		dao.updateCustomer(c3);
 		
-		Customer c2 = new Customer("maria", "마리아");
-		dao.insertCustomer(c2);	
+//		Customer c2 = new Customer("maria", "마리아");
+//		dao.insertCustomer(c2);	
 		
 		
 		List<Customer> list = dao.getCustomers();
