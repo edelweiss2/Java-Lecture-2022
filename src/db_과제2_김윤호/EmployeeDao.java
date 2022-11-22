@@ -62,7 +62,7 @@ public class EmployeeDao {
 				e.setId(rs.getInt(1));
 				e.setName(rs.getString(2));
 				e.setPosition(rs.getString(3));
-				e.setJoinDate(LocalDate.parse(rs.getString(4).replace(" ", "T")));
+				e.setJoinDate(LocalDate.parse(rs.getString(4).substring(0,10)));
 				list.add(e);
 			}
 			rs.close();

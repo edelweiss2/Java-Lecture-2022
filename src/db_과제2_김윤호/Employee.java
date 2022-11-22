@@ -7,7 +7,7 @@ public class Employee {
 	private int id;
 	private String name;
 	private String position;
-	private LocalDate  joinDate;
+	private LocalDate joinDate;
 	
 	Employee() {}
 	Employee(int id, String name, String position, LocalDate joinDate) {
