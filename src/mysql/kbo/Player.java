@@ -14,8 +14,8 @@ public class Player {
 
 	Player(int backNumber, String name, String position, LocalDate bday, int height, int isDeleted) {
 		super();
-		this.name = name;
 		this.backNumber = backNumber;
+		this.name = name;
 		this.position = position;
 		this.bday = bday;
 		this.height = height;
