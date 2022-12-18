@@ -25,8 +25,9 @@ public class Ex14_Random {
 
 	static boolean isValidNumber(int num, int[] lotto) {
 		for (int a : lotto)
-			if (num == a)
+			if (num == a) {
 				return false;
+			}
 		return true;
 	}
 }
